@@ -1,7 +1,5 @@
 library fastimage;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/fastimage.dart';
+export 'src/image_format.dart';
+export 'src/get_size_response.dart';
