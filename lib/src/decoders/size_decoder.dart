@@ -7,6 +7,6 @@ abstract class SizeDecoder {
   int get constantDataLength;
 
   bool supportsFileExtenstion(String extension);
-  bool canDecodeData(List<int> data);
-  GetSizeResponse decode(List<int> data);
+  bool canDecodeData(Uint8List data);
+  GetSizeResponse decode(Uint8List data);
 }

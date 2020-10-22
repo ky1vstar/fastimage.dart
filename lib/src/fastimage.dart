@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:fastimage/src/decoders/bmp_size_decoder.dart';
 import 'package:fastimage/src/decoders/gif_size_decoder.dart';
+import 'package:fastimage/src/decoders/psd_size_decoder.dart';
 import 'package:fastimage/src/get_size_response.dart';
 import 'package:fastimage/src/decoders/png_size_decoder.dart';
 import 'package:fastimage/src/get_size_operation.dart';
@@ -11,9 +13,11 @@ class FastImage {
   static FastImage _instance;
 
   final HttpClient client;
-  final List<SizeDecoder> _decoders = [
+  final List<SizeDecoder> _decoders= [
     PngSizeDecoder(),
     GifSizeDecoder(),
+    BmpSizeDecoder(),
+    PsdSizeDecoder(),
   ];
 
   FastImage([HttpClient client])

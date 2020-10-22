@@ -1,7 +1,7 @@
 name: fastimage
-description: A new Flutter package project.
+description: Dart library that finds the size and type of an image given its uri by fetching as little as needed.
 version: 0.0.1
-author: ky1vstar
+author: ky1vstar <i@ky1vstar.dev>
 homepage: https://github.com/ky1vstar/fastimage.dart
 
 environment:

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 import 'dart:typed_data';
 
+import 'package:fastimage/src/utils/data_buffer.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 import 'package:fastimage/src/utils/compute_stream.dart';
 import 'package:fastimage/src/get_size_response.dart';
@@ -34,17 +35,25 @@ class GetSizeOperation {
     }
 
     if (constantDataLength != null) {
-      return _handleResponse(response);
+      return _handleResponse(response, constantDataLength);
     } else {
       return computeStream(_compute, response, this);
     }
   }
 
-  Future<GetSizeResponse> _handleResponse(Stream<List<int>> responseStream) {
+  Future<GetSizeResponse> _startLocalFile() {
+    final file = File(url.toFilePath());
+    final dataStream = file.openRead();
+    return _handleResponse(dataStream, null);
+  }
+
+  Future<GetSizeResponse> _handleResponse(
+      Stream<List<int>> responseStream, int constantDataLength
+  ) {
     final completer = Completer<GetSizeResponse>.sync();
     final maxSignatureLength = decoders.fold(0, (previousValue, element) =>
     previousValue + element.signatureLength);
-    final data = List<int>();
+    final buffer = DataBuffer(maxLength: constantDataLength);
     SizeDecoder resolvedDecoder;
     StreamSubscription<List<int>> subscription;
 
@@ -53,20 +62,20 @@ class GetSizeOperation {
           if (completer.isCompleted)
             return;
 
-          data.addAll(chunk);
-          resolvedDecoder ??= _decoderForData(data);
+          buffer.add(chunk);
+          resolvedDecoder ??= _decoderForData(buffer.byteList);
 
           if (resolvedDecoder != null) {
-            final result = resolvedDecoder.decode(data);
+            final result = resolvedDecoder.decode(buffer.byteList);
             if (result != null) {
               completer.complete(result);
             } else if (resolvedDecoder.constantDataLength != null
-                && data.length > resolvedDecoder.constantDataLength)
+                && buffer.length > resolvedDecoder.constantDataLength)
             {
               completer.completeError("Wrong type #1");
               subscription.cancel();
             }
-          } else if (data.length > maxSignatureLength) {
+          } else if (buffer.length > maxSignatureLength) {
             completer.completeError("Wrong type #2");
             subscription.cancel();
           }
@@ -91,12 +100,12 @@ class GetSizeOperation {
     );
   }
 
-  SizeDecoder _decoderForData(List<int> data) =>
+  SizeDecoder _decoderForData(Uint8List data) =>
       decoders.firstWhere(($0) => $0.canDecodeData(data), orElse: () => null);
 }
 
 Future<GetSizeResponse> _compute(
   Stream<List<int>> responseStream, GetSizeOperation operation
 ) {
-  return operation._handleResponse(responseStream);
+  return operation._handleResponse(responseStream, null);
 }
