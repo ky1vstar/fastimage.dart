@@ -6,6 +6,7 @@ import 'package:fastimage/src/image_format.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 
 class PngSizeDecoder implements SizeDecoder {
+  ImageFormat get imageFormat => ImageFormat.png;
   int get signatureLength => _signature.length;
   int get constantDataLength => 24;
 

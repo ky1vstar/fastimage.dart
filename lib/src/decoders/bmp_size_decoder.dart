@@ -6,6 +6,7 @@ import 'package:fastimage/src/image_format.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 
 class BmpSizeDecoder implements SizeDecoder {
+  ImageFormat get imageFormat => ImageFormat.bmp;
   int get signatureLength => _signature.length;
   int get constantDataLength => 26;
 
@@ -31,7 +32,7 @@ class BmpSizeDecoder implements SizeDecoder {
     } else {
       return GetSizeResponse(
           blob.getInt32(18, Endian.little),
-          blob.getUint16(22, Endian.little).abs(),
+          blob.getInt32(22, Endian.little).abs(),
           ImageFormat.bmp
       );
     }

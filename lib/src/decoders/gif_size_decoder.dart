@@ -6,6 +6,7 @@ import 'package:fastimage/src/image_format.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 
 class GifSizeDecoder implements SizeDecoder {
+  ImageFormat get imageFormat => ImageFormat.gif;
   int get signatureLength => _signature.length;
   int get constantDataLength => 10;
 

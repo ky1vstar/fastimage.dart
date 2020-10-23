@@ -1,0 +1,1 @@
+class DecoderTypeMismatchException implements Exception {}

@@ -5,7 +5,7 @@ import 'package:fastimage/fastimage.dart';
 
 // \[:(.+), \[(\d+), ?(\d+)\]\]
 // GetSizeResponse($2, $3, ImageFormat.$1)
-final GoodFixtures = {
+const goodFixtures = {
   "test.bmp": GetSizeResponse(40, 27, ImageFormat.bmp),
   "test2.bmp": GetSizeResponse(1920, 1080, ImageFormat.bmp),
   "test_coreheader.bmp": GetSizeResponse(40, 27, ImageFormat.bmp),
@@ -35,10 +35,11 @@ final GoodFixtures = {
 //  "test2.svg":  GetSizeResponse(366, 271, ImageFormat.svg),
 //  "test3.svg":  GetSizeResponse(255, 48, ImageFormat.svg),
 //  "test4.svg":  GetSizeResponse(271, 271, ImageFormat.svg),
-//  "orient_6.jpg": GetSizeResponse(1250, 2500, ImageFormat.jpeg)
+//  "orient_6.jpg": GetSizeResponse(1250, 2500, ImageFormat.jpeg),
+  "wrong_extension_png.bmp": GetSizeResponse(30, 20, ImageFormat.png),
 };
 
-final BadFixtures = [
+const badFixtures = [
   "faulty.jpg",
   "test_rgb.ct",
   "test.xml",
@@ -47,36 +48,86 @@ final BadFixtures = [
   "a.CRW"
 ];
 
+final fastImage = FastImage();
+const testUrl = "https://raw.githubusercontent.com/ky1vstar/fastimage.dart/master/test/fixtures/";
+final fixturePath = Directory.current.path + "/test/fixtures/";
+
 void main() {
-  test('adds one to input values', () async {
-    print(Directory.current);
+  if (Platform.environment["PROXY"] == "1") {
+    fastImage.client.findProxy = (uri) {
+      return "PROXY localhost:27016";
+    };
+    fastImage.client.badCertificateCallback = (cert, host, port) {
+      return true;
+    };
+  }
 
-    final fastImage = FastImage();
-    if (Platform.environment["PROXY"] == "1") {
-      fastImage.client.findProxy = (uri) {
-        return "PROXY localhost:27016";
-      };
-      fastImage.client.badCertificateCallback = (cert, host, port) {
-        return true;
-      };
-    }
-
-
-    var result = await fastImage.getSize("https://flutter.dev/assets/flutter-lockup-1caf6476beed76adec3c477586da54de6b552b2f42108ec5bc68dc63bae2df75.png");
-    print(result);
-    expect(result.format, ImageFormat.png);
-
-    result = await fastImage.getSize("https://github.com/ky1vstar/PiPhone/blob/master/Demonstration/PiPhone.gif?raw=true");
-    print(result);
-    expect(result.format, ImageFormat.gif);
-
-    result = await fastImage.getSize("https://github.com/ky1vstar/tdjson/releases/download/1.4.0/credit-card-template.psd");
-    print(result);
-    expect(result.format, ImageFormat.psd);
+//  test('adds one to input values', () async {
+//    var result = await fastImage.getSize("https://flutter.dev/assets/flutter-lockup-1caf6476beed76adec3c477586da54de6b552b2f42108ec5bc68dc63bae2df75.png");
+//    print(result);
+//    expect(result.format, ImageFormat.png);
+//
+//    result = await fastImage.getSize("https://github.com/ky1vstar/PiPhone/blob/master/Demonstration/PiPhone.gif?raw=true");
+//    print(result);
+//    expect(result.format, ImageFormat.gif);
+//
+//    result = await fastImage.getSize("https://github.com/ky1vstar/tdjson/releases/download/1.4.0/credit-card-template.psd");
+//    print(result);
+//    expect(result.format, ImageFormat.psd);
 //    print(response);
 //    expect(calculator.addOne(2), 3);
 //    expect(calculator.addOne(-7), -6);
 //    expect(calculator.addOne(0), 1);
 //    expect(() :  calculator.addOne(null), throwsNoSuchMethodError);
+//  });
+
+  test("Data url", () {
+    final url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR42mNk+M9QzwAEAAmGAYCF+yOnAAAAAElFTkSuQmCC";
+    expect(
+        fastImage.getSize(url),
+        completion(GetSizeResponse(2, 1, ImageFormat.png))
+    );
+  });
+
+  group("remote good fixtures", () {
+    goodFixtures.forEach((key, value) {
+      testRemoteFixture(key, value);
+    });
+  });
+
+  group("remote bad fixtures", () {
+    badFixtures.forEach((path) {
+      testRemoteFixture(path, throwsException);
+    });
+  });
+
+  group("local good fixtures", () {
+    goodFixtures.forEach((key, value) {
+      testLocalFixture(key, value);
+    });
+  });
+
+  group("local bad fixtures", () {
+    badFixtures.forEach((path) {
+      testLocalFixture(path, throwsException);
+    });
+  });
+}
+
+void testRemoteFixture(String path, dynamic matcher) {
+  test(path, () {
+    expect(
+        fastImage.getSize(testUrl + path),
+        anyOf(matcher, completion(matcher))
+    );
+  });
+}
+
+void testLocalFixture(String path, dynamic matcher) {
+  test(path, () {
+    expect(
+        fastImage.getSize(fixturePath + path),
+        anyOf(matcher, completion(matcher))
+    );
   });
 }
