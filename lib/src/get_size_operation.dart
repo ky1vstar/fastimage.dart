@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:fastimage/src/internal_exceptions.dart';
 import 'package:fastimage/src/public_exceptions.dart';
+import 'package:fastimage/src/utils/compute.dart';
 import 'package:fastimage/src/utils/data_buffer.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 import 'package:fastimage/src/utils/compute_stream.dart';
@@ -23,9 +24,14 @@ class GetSizeOperation {
       HttpClient client, Map<String, String> headers
   ) {
     if (uri.isFileUri) {
-      return _startLocalFile();
+      if (preferredDecoder?.constantDataLength == null) {
+        // start isolate only if we are going to work with non-constant amount of data
+        return compute(_computeLocalFile, this);
+      } else {
+        return _startLocalFile();
+      }
     } else if (uri.data != null) {
-      return _startDataUri();
+      return compute(_computeDataUri, this);
     } else {
       return _startRemote(client, headers);
     }
@@ -54,7 +60,8 @@ class GetSizeOperation {
     if (constantDataLength != null) {
       return _handleResponse(response);
     } else {
-      return computeStream(_compute, response, this);
+      // start isolate only if we are going to work with non-constant amount of data
+      return computeStream(_computeRemote, response, this);
     }
   }
 
@@ -68,7 +75,7 @@ class GetSizeOperation {
 
   Future<GetSizeResponse> _startLocalFile() {
     final file = File(uri.toFilePath());
-    final dataStream = file.openRead();
+    final dataStream = file.openRead(0, preferredDecoder?.constantDataLength);
     return _handleResponse(dataStream);
   }
 
@@ -127,8 +134,16 @@ class GetSizeOperation {
       decoders.firstWhere(($0) => $0.canDecodeData(data), orElse: () => null);
 }
 
-Future<GetSizeResponse> _compute(
+Future<GetSizeResponse> _computeRemote(
   Stream<List<int>> dataStream, GetSizeOperation operation
 ) {
   return operation._handleResponse(dataStream);
+}
+
+Future<GetSizeResponse> _computeLocalFile(GetSizeOperation operation) {
+  return operation._startLocalFile();
+}
+
+Future<GetSizeResponse> _computeDataUri(GetSizeOperation operation) {
+  return operation._startDataUri();
 }

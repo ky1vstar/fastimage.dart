@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
-
 import 'package:fastimage/src/get_size_response.dart';
-
 import 'package:fastimage/src/get_size_operation.dart';
 import 'package:fastimage/src/internal_exceptions.dart';
 import 'package:fastimage/src/utils/extensions.dart';

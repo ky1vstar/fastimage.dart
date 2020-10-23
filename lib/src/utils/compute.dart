@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:isolate';
 
+import 'package:fastimage/src/utils/compute_shared.dart';
 import 'package:meta/meta.dart';
 
 /// Signature for the callback passed to [compute].
@@ -66,9 +67,13 @@ Future<R> compute<Q, R>(
     }
   });
   resultPort.listen((dynamic resultData) {
-    assert(resultData == null || resultData is R);
-    if (!result.isCompleted)
-      result.complete(resultData as R);
+    if (result.isCompleted) {
+      return;
+    } else if (resultData is StreamEvent) {
+      result.complete(resultData.value as R);
+    } else if (resultData is StreamError) {
+      result.completeError(resultData.error, resultData.stackTrace);
+    }
   });
   await result.future;
   Timeline.startSync('$debugLabel: end', flow: Flow.end(flow.id));
@@ -100,17 +105,26 @@ class _IsolateConfiguration<Q, R> {
 Future<void> _spawn<Q, R>(
     _IsolateConfiguration<Q, FutureOr<R>> configuration
 ) async {
-  final R result = await Timeline.timeSync(
-    configuration.debugLabel,
-        () async {
-      final FutureOr<R> applicationResult = await configuration.apply();
-      return await applicationResult;
-    },
-    flow: Flow.step(configuration.flowId),
-  );
-  Timeline.timeSync(
-    '${configuration.debugLabel}: returning result',
-        () { configuration.resultPort.send(result); },
-    flow: Flow.step(configuration.flowId),
-  );
+  try {
+    final R result = await Timeline.timeSync(
+      configuration.debugLabel,
+          () async {
+        final FutureOr<R> applicationResult = await configuration.apply();
+        return await applicationResult;
+      },
+      flow: Flow.step(configuration.flowId),
+    );
+    Timeline.timeSync(
+      '${configuration.debugLabel}: returning result',
+          () { configuration.resultPort.send(StreamEvent(result)); },
+      flow: Flow.step(configuration.flowId),
+    );
+  } catch (e, stackTrace) {
+    // pass error without loosing its type
+    Timeline.timeSync(
+      '${configuration.debugLabel}: throwing exception',
+          () { configuration.resultPort.send(StreamError(e, stackTrace)); },
+      flow: Flow.step(configuration.flowId),
+    );
+  }
 }

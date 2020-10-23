@@ -51,6 +51,7 @@ const badFixtures = [
 final fastImage = FastImage();
 const testUrl = "https://raw.githubusercontent.com/ky1vstar/fastimage.dart/master/test/fixtures/";
 final fixturePath = Directory.current.path + "/test/fixtures/";
+final unsupporedMatch = throwsA(isA<UnsupportedImageFormatException>());
 
 void main() {
   if (Platform.environment["PROXY"] == "1") {
@@ -61,25 +62,6 @@ void main() {
       return true;
     };
   }
-
-//  test('adds one to input values', () async {
-//    var result = await fastImage.getSize("https://flutter.dev/assets/flutter-lockup-1caf6476beed76adec3c477586da54de6b552b2f42108ec5bc68dc63bae2df75.png");
-//    print(result);
-//    expect(result.format, ImageFormat.png);
-//
-//    result = await fastImage.getSize("https://github.com/ky1vstar/PiPhone/blob/master/Demonstration/PiPhone.gif?raw=true");
-//    print(result);
-//    expect(result.format, ImageFormat.gif);
-//
-//    result = await fastImage.getSize("https://github.com/ky1vstar/tdjson/releases/download/1.4.0/credit-card-template.psd");
-//    print(result);
-//    expect(result.format, ImageFormat.psd);
-//    print(response);
-//    expect(calculator.addOne(2), 3);
-//    expect(calculator.addOne(-7), -6);
-//    expect(calculator.addOne(0), 1);
-//    expect(() :  calculator.addOne(null), throwsNoSuchMethodError);
-//  });
 
   test("Data url", () {
     final url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR42mNk+M9QzwAEAAmGAYCF+yOnAAAAAElFTkSuQmCC";
@@ -97,7 +79,7 @@ void main() {
 
   group("remote bad fixtures", () {
     badFixtures.forEach((path) {
-      testRemoteFixture(path, throwsException);
+      testRemoteFixture(path, unsupporedMatch);
     });
   });
 
@@ -109,7 +91,7 @@ void main() {
 
   group("local bad fixtures", () {
     badFixtures.forEach((path) {
-      testLocalFixture(path, throwsException);
+      testLocalFixture(path, unsupporedMatch);
     });
   });
 }
