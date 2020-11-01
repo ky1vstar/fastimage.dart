@@ -95,27 +95,44 @@ class GetSizeOperation {
           buffer.add(chunk);
           resolvedDecoder ??= _decoderForData(buffer.byteList);
 
-          if (resolvedDecoder != null) {
-            if (preferredDecoder != null
-                && preferredDecoder != resolvedDecoder) {
-              completer.completeError(DecoderTypeMismatchException());
-              subscription.cancel();
-              return;
-            }
-
-            final result = resolvedDecoder.decode(buffer.byteList);
-            if (result != null) {
-              completer.complete(result);
-            } else if (resolvedDecoder.constantDataLength != null
-                && buffer.length > resolvedDecoder.constantDataLength)
-            {
-              completer.completeError(CorruptedImageFormatException(
-                  format: resolvedDecoder.imageFormat, uri: uri
+          if (resolvedDecoder == null) {
+            if (buffer.length > maxSignatureLength) {
+              completer.completeError(UnsupportedImageFormatException(
+                  uri: uri
               ));
               subscription.cancel();
             }
-          } else if (buffer.length > maxSignatureLength) {
-            completer.completeError(UnsupportedImageFormatException(uri: uri));
+            return;
+          }
+
+          if (preferredDecoder != null
+              && preferredDecoder != resolvedDecoder) {
+            completer.completeError(DecoderTypeMismatchException());
+            subscription.cancel();
+            return;
+          }
+
+          GetSizeResponse result;
+          try {
+            result = resolvedDecoder.decode(buffer.byteList);
+          } on CorruptedDataException catch(_) {
+            completer.completeError(CorruptedImageFormatException(
+                format: resolvedDecoder.imageFormat, uri: uri
+            ));
+            subscription.cancel();
+            return;
+          } catch(_) {
+            // do nothing
+          }
+
+          if (result != null) {
+            completer.complete(result);
+          } else if (resolvedDecoder.constantDataLength != null
+              && buffer.length > resolvedDecoder.constantDataLength)
+          {
+            completer.completeError(CorruptedImageFormatException(
+                format: resolvedDecoder.imageFormat, uri: uri
+            ));
             subscription.cancel();
           }
         },

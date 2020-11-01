@@ -12,7 +12,7 @@ class GifSizeDecoder implements SizeDecoder {
 
   static const _signature = [0x47, 0x49];
 
-  bool supportsFileExtenstion(String extension) =>
+  bool supportsFileExtension(String extension) =>
       extension == "gif";
 
   bool canDecodeData(Uint8List data) =>

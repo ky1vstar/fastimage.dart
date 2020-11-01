@@ -12,7 +12,7 @@ class PsdSizeDecoder implements SizeDecoder {
 
   static const _signature = [0x38, 0x42];
 
-  bool supportsFileExtenstion(String extension) =>
+  bool supportsFileExtension(String extension) =>
       extension == "psd";
 
   bool canDecodeData(Uint8List data) =>

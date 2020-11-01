@@ -3,4 +3,5 @@ enum ImageFormat {
   gif,
   bmp,
   psd,
+  jpeg,
 }

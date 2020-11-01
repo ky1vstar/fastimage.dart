@@ -12,7 +12,7 @@ class BmpSizeDecoder implements SizeDecoder {
 
   static const _signature = [0x42, 0x4D];
 
-  bool supportsFileExtenstion(String extension) =>
+  bool supportsFileExtension(String extension) =>
       extension == "bmp";
 
   bool canDecodeData(Uint8List data) =>

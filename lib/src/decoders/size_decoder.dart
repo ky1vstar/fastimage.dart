@@ -8,7 +8,7 @@ abstract class SizeDecoder {
   int get signatureLength;
   int get constantDataLength;
 
-  bool supportsFileExtenstion(String extension);
+  bool supportsFileExtension(String extension);
   bool canDecodeData(Uint8List data);
   GetSizeResponse decode(Uint8List data);
 

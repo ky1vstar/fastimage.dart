@@ -11,16 +11,18 @@ import 'package:fastimage/src/decoders/bmp_size_decoder.dart';
 import 'package:fastimage/src/decoders/gif_size_decoder.dart';
 import 'package:fastimage/src/decoders/psd_size_decoder.dart';
 import 'package:fastimage/src/decoders/png_size_decoder.dart';
+import 'package:fastimage/src/decoders/jpeg_size_decoder.dart';
 
 class FastImage {
   static FastImage _instance;
 
   final HttpClient client;
-  final List<SizeDecoder> _decoders= [
+  final List<SizeDecoder> _decoders = [
     PngSizeDecoder(),
     GifSizeDecoder(),
     BmpSizeDecoder(),
     PsdSizeDecoder(),
+    JpegSizeDecoder(),
   ];
 
   FastImage([HttpClient client])
@@ -70,7 +72,7 @@ class FastImage {
     if (extension == null)
       return null;
     return _decoders.firstWhere(
-            ($0) => $0.supportsFileExtenstion(extension)
+            ($0) => $0.supportsFileExtension(extension)
                 && $0.constantDataLength != null,
         orElse: () => null
     );
