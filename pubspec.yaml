@@ -1,11 +1,13 @@
 name: fastimage
 description: Dart library that finds the size and type of an image given its uri by fetching as little as needed.
 version: 0.0.1
-author: ky1vstar <i@ky1vstar.dev>
 homepage: https://github.com/ky1vstar/fastimage.dart
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
+
+dependencies:
+  meta: ">=1.2.0 <2.0.0"
 
 dev_dependencies:
   test: any
