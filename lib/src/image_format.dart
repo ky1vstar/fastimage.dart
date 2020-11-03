@@ -4,4 +4,8 @@ enum ImageFormat {
   bmp,
   psd,
   jpeg,
+  tiff,
+  ico,
+  cur,
+  webp,
 }

@@ -12,6 +12,10 @@ import 'package:fastimage/src/decoders/gif_size_decoder.dart';
 import 'package:fastimage/src/decoders/psd_size_decoder.dart';
 import 'package:fastimage/src/decoders/png_size_decoder.dart';
 import 'package:fastimage/src/decoders/jpeg_size_decoder.dart';
+import 'package:fastimage/src/decoders/tiff_size_decoder.dart';
+import 'package:fastimage/src/decoders/ico_size_decoder.dart';
+import 'package:fastimage/src/decoders/cur_size_decoder.dart';
+import 'package:fastimage/src/decoders/webp_size_decoder.dart';
 
 class FastImage {
   static FastImage _instance;
@@ -23,6 +27,10 @@ class FastImage {
     BmpSizeDecoder(),
     PsdSizeDecoder(),
     JpegSizeDecoder(),
+    TiffSizeDecoder(),
+    IcoSizeDecoder(),
+    CurSizeDecoder(),
+    WebpSizeDecoder(),
   ];
 
   FastImage([HttpClient client])

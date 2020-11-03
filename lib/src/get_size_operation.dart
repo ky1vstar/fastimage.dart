@@ -114,7 +114,10 @@ class GetSizeOperation {
 
           GetSizeResponse result;
           try {
-            result = resolvedDecoder.decode(buffer.byteList);
+            result = GetSizeResponse.size(
+                resolvedDecoder.decode(buffer.byteList),
+                resolvedDecoder.imageFormat
+            );
           } on CorruptedDataException catch(_) {
             completer.completeError(CorruptedImageFormatException(
                 format: resolvedDecoder.imageFormat, uri: uri

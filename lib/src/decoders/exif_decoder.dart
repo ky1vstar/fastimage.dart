@@ -39,7 +39,7 @@ class Exif {
           height = value;
           break;
         case 0x0112:
-          orientation = ImageOrientation.values[value];
+          orientation = ImageOrientation.values[value - 1];
           break;
       }
 

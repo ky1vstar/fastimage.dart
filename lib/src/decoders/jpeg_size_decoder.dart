@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:fastimage/fastimage.dart';
 import 'package:fastimage/src/decoders/exif_decoder.dart';
-import 'package:fastimage/src/get_size_response.dart';
+import 'package:fastimage/src/image_size.dart';
 import 'package:fastimage/src/decoders/size_decoder.dart';
 import 'package:fastimage/src/image_format.dart';
+import 'package:fastimage/src/image_orientation.dart';
 import 'package:fastimage/src/utils/extensions.dart';
 import 'package:fastimage/src/internal_exceptions.dart';
 
@@ -23,7 +25,7 @@ class JpegSizeDecoder implements SizeDecoder {
   bool canDecodeData(Uint8List data) =>
       data.hasPrefix(_signature);
 
-  GetSizeResponse decode(Uint8List data) {
+  ImageSize decode(Uint8List data) {
     final blob = ByteData.sublistView(data);
     var searchState = _SearchState.findHeader;
     var offset = 2;
@@ -62,14 +64,13 @@ class JpegSizeDecoder implements SizeDecoder {
           // Maybe TODO later
           if (sample == 0xE1) {
             final exifLength = blob.getUint16(offset, Endian.big);
-            final isExif = Uint8List.sublistView(data, offset + 2, offset + 6)
-              .hasPrefix([0x45, 0x78, 0x69, 0x66]); // Exif
+            final isExif = data.sublistView(offset + 2, offset + 6)
+                .hasAsciiPrefix("Exif");
             if (isExif && exif == null) {
-              final exifData = Uint8List.sublistView(data, offset + 8);
+              final exifData = data.sublistView(offset + 8);
               try {
                 exif = Exif(exifData);
               } catch(e) {
-                print(e);
               }
             }
             offset += exifLength;
@@ -105,14 +106,14 @@ class JpegSizeDecoder implements SizeDecoder {
           var width = blob.getUint16(offset + 2, Endian.big);
           var height = blob.getUint16(offset, Endian.big);
 
-          if ((exif?.orientation?.index ?? 0) >= 5) {
+          if (exif?.orientation?.isRotated ?? false) {
             // Rotated
             final temp = width;
             width = height;
             height = temp;
           }
 
-          return GetSizeResponse(width, height, ImageFormat.jpeg);
+          return ImageSize(width, height);
 
         case _SearchState.foundEOI:
           throw CorruptedDataException();

@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:core';
 
+import 'dart:typed_data';
+
 extension UriExtension on Uri {
-  String get pathExtension =>
-      pathSegments.last?.split(".")?.last?.toLowerCase();
+  String get pathExtension => data == null
+      ? pathSegments.last?.split(".")?.last?.toLowerCase()
+      : null;
 
   bool get isFileUri {
     try {
@@ -25,4 +29,14 @@ extension IterableExtension<E> on Iterable<E> {
 
     return true;
   }
+}
+
+extension ListIntExtension on List<int> {
+  bool hasAsciiPrefix(String prefix) =>
+      hasPrefix(ascii.encode(prefix));
+}
+
+extension Uint8ListExtension on Uint8List {
+  Uint8List sublistView(int start, [int end]) =>
+      Uint8List.sublistView(this, start, end);
 }
