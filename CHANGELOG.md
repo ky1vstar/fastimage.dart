@@ -1,7 +1,7 @@
 ## [1.0.0] - First stable release.
 
 * Add support for `WebP`, `TIFF`, `ICO` and `CUR` image types
-* Add more test cases
+* Add more test cases.
 
 ## [0.0.2] - Test automatic publishing.
 
