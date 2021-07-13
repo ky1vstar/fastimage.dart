@@ -1,3 +1,5 @@
+## [2.0.0] - Null safety.
+
 ## [1.0.0] - First stable release.
 
 * Add support for `WebP`, `TIFF`, `ICO` and `CUR` image types
