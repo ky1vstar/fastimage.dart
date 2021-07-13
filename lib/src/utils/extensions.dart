@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart' show IterableExtension;
+
 extension UriExtension on Uri {
   String? get pathExtension => data == null
-      ? pathSegments.last?.split(".")?.last?.toLowerCase()
+      ? pathSegments.lastOrNull?.split(".").lastOrNull?.toLowerCase()
       : null;
 
   bool get isFileUri {

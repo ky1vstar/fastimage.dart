@@ -1,5 +1,4 @@
 import 'package:fastimage/fastimage.dart';
-import 'package:meta/meta.dart';
 
 abstract class FastImageException implements Exception {}
 
