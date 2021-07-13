@@ -4,6 +4,7 @@ import 'dart:core';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:fastimage/src/internal_exceptions.dart';
 import 'package:fastimage/src/public_exceptions.dart';
 import 'package:fastimage/src/utils/compute.dart';
@@ -16,12 +17,12 @@ import 'package:fastimage/src/decoders/size_decoder.dart';
 class GetSizeOperation {
   final Uri uri;
   final List<SizeDecoder> decoders;
-  final SizeDecoder preferredDecoder;
+  final SizeDecoder? preferredDecoder;
 
   GetSizeOperation(this.uri, this.decoders, this.preferredDecoder);
 
   Future<GetSizeResponse> start(
-      HttpClient client, Map<String, String> headers
+      HttpClient client, Map<String, String>? headers
   ) {
     if (uri.isFileUri) {
       if (preferredDecoder?.constantDataLength == null) {
@@ -38,7 +39,7 @@ class GetSizeOperation {
   }
 
   Future<GetSizeResponse> _startRemote(
-      HttpClient client, Map<String, String> headers
+      HttpClient client, Map<String, String>? headers
   ) async {
     final request = await client.getUrl(uri);
     headers?.forEach((name, value) => request.headers.add(name, value));
@@ -66,9 +67,9 @@ class GetSizeOperation {
   }
 
   Future<GetSizeResponse> _startDataUri() {
-    StreamController<List<int>> controller;
+    late StreamController<List<int>> controller;
     controller = StreamController<List<int>>(onListen: () =>
-        controller.add(uri.data.contentAsBytes()));
+        controller.add(uri.data!.contentAsBytes()));
     return _handleResponse(controller.stream)
         .whenComplete(() => controller.close());
   }
@@ -84,8 +85,8 @@ class GetSizeOperation {
     final maxSignatureLength = decoders.fold<int>(0, (previousValue, element) =>
         max(previousValue, element.signatureLength));
     final buffer = DataBuffer(maxLength: preferredDecoder?.constantDataLength);
-    SizeDecoder resolvedDecoder;
-    StreamSubscription<List<int>> subscription;
+    SizeDecoder? resolvedDecoder;
+    late StreamSubscription<List<int>> subscription;
 
     subscription = dataStream.listen(
         (chunk) {
@@ -112,15 +113,15 @@ class GetSizeOperation {
             return;
           }
 
-          GetSizeResponse result;
+          GetSizeResponse? result;
           try {
             result = GetSizeResponse.size(
-                resolvedDecoder.decode(buffer.byteList),
-                resolvedDecoder.imageFormat
+                resolvedDecoder!.decode(buffer.byteList)!,
+                resolvedDecoder!.imageFormat
             );
           } on CorruptedDataException catch(_) {
             completer.completeError(CorruptedImageFormatException(
-                format: resolvedDecoder.imageFormat, uri: uri
+                format: resolvedDecoder!.imageFormat, uri: uri
             ));
             subscription.cancel();
             return;
@@ -130,11 +131,11 @@ class GetSizeOperation {
 
           if (result != null) {
             completer.complete(result);
-          } else if (resolvedDecoder.constantDataLength != null
-              && buffer.length > resolvedDecoder.constantDataLength)
+          } else if (resolvedDecoder!.constantDataLength != null
+              && buffer.length > resolvedDecoder!.constantDataLength!)
           {
             completer.completeError(CorruptedImageFormatException(
-                format: resolvedDecoder.imageFormat, uri: uri
+                format: resolvedDecoder!.imageFormat, uri: uri
             ));
             subscription.cancel();
           }
@@ -150,8 +151,8 @@ class GetSizeOperation {
     return completer.future;
   }
 
-  SizeDecoder _decoderForData(Uint8List data) =>
-      decoders.firstWhere(($0) => $0.canDecodeData(data), orElse: () => null);
+  SizeDecoder? _decoderForData(Uint8List data) =>
+      decoders.firstWhereOrNull(($0) => $0.canDecodeData(data));
 }
 
 Future<GetSizeResponse> _computeRemote(

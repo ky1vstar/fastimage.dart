@@ -1,5 +1,5 @@
 class StreamEvent {
-  final Object value;
+  final Object? value;
 
   const StreamEvent(this.value);
 }

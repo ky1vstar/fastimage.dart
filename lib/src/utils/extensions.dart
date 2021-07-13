@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:core';
-
 import 'dart:typed_data';
 
 extension UriExtension on Uri {
-  String get pathExtension => data == null
+  String? get pathExtension => data == null
       ? pathSegments.last?.split(".")?.last?.toLowerCase()
       : null;
 
@@ -37,6 +36,6 @@ extension ListIntExtension on List<int> {
 }
 
 extension Uint8ListExtension on Uint8List {
-  Uint8List sublistView(int start, [int end]) =>
+  Uint8List sublistView(int start, [int? end]) =>
       Uint8List.sublistView(this, start, end);
 }

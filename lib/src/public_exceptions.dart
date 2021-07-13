@@ -8,11 +8,9 @@ class WrongStatusCodeException implements FastImageException {
   /// Creates a [FastImageWrongStatusCodeException] with the specified
   /// http [statusCode] and [uri].
   WrongStatusCodeException({
-    @required this.statusCode, @required this.uri
+    required this.statusCode, required this.uri
   })
-      : assert(uri != null),
-        assert(statusCode != null),
-        _message = "HTTP request failed, statusCode: $statusCode, $uri";
+      : _message = "HTTP request failed, statusCode: $statusCode, $uri";
 
   /// The HTTP status code from the server.
   final int statusCode;
@@ -29,11 +27,9 @@ class WrongStatusCodeException implements FastImageException {
 
 class CorruptedImageFormatException implements FastImageException {
   CorruptedImageFormatException({
-    @required this.format, @required this.uri
+    required this.format, required this.uri
   })
-      : assert(format != null),
-        assert(uri != null),
-        _message = "Failed to decode image with type $format, $uri";
+      : _message = "Failed to decode image with type $format, $uri";
 
   final ImageFormat format;
 
@@ -47,10 +43,9 @@ class CorruptedImageFormatException implements FastImageException {
 
 class UnsupportedImageFormatException implements FastImageException {
   UnsupportedImageFormatException({
-    @required this.uri
+    required this.uri
   })
-      : assert(uri != null),
-        _message = "Unsupported image format $uri";
+      : _message = "Unsupported image format $uri";
 
   final String _message;
 

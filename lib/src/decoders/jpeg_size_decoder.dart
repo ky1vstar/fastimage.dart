@@ -16,7 +16,7 @@ import 'package:fastimage/src/internal_exceptions.dart';
 class JpegSizeDecoder implements SizeDecoder {
   ImageFormat get imageFormat => ImageFormat.jpeg;
   int get signatureLength => _signature.length;
-  int get constantDataLength => null;
+  int? get constantDataLength => null;
 
   static const _signature = [0xFF, 0xD8];
 
@@ -25,11 +25,11 @@ class JpegSizeDecoder implements SizeDecoder {
   bool canDecodeData(Uint8List data) =>
       data.hasPrefix(_signature);
 
-  ImageSize decode(Uint8List data) {
+  ImageSize? decode(Uint8List data) {
     final blob = ByteData.sublistView(data);
     var searchState = _SearchState.findHeader;
     var offset = 2;
-    Exif exif;
+    Exif? exif;
 
     while (offset < data.length) {
       switch (searchState) {

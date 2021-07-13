@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:fastimage/src/get_size_response.dart';
 import 'package:fastimage/src/get_size_operation.dart';
 import 'package:fastimage/src/internal_exceptions.dart';
@@ -18,7 +19,7 @@ import 'package:fastimage/src/decoders/cur_size_decoder.dart';
 import 'package:fastimage/src/decoders/webp_size_decoder.dart';
 
 class FastImage {
-  static FastImage _instance;
+  static FastImage? _instance;
 
   final HttpClient client;
   final List<SizeDecoder> _decoders = [
@@ -33,21 +34,21 @@ class FastImage {
     WebpSizeDecoder(),
   ];
 
-  FastImage([HttpClient client])
+  FastImage([HttpClient? client])
     : this.client = client ?? HttpClient();
 
   factory FastImage.shared() {
     if (_instance == null)
       _instance = FastImage();
-    return _instance;
+    return _instance!;
   }
 
-  Future<GetSizeResponse> getSize(String url, {Map<String, String> headers}) {
+  Future<GetSizeResponse> getSize(String url, {Map<String, String>? headers}) {
     final uri = Uri.parse(url);
     return getSizeUri(uri, headers: headers);
   }
 
-  Future<GetSizeResponse> getSizeUri(Uri uri, {Map<String, String> headers}) {
+  Future<GetSizeResponse> getSizeUri(Uri uri, {Map<String, String>? headers}) {
     return _getSizeUri(uri, headers, true);
   }
 
@@ -58,7 +59,7 @@ class FastImage {
   }
 
   Future<GetSizeResponse> _getSizeUri(
-      Uri uri, Map<String, String> headers, bool shouldResolveDecoderByExtension
+      Uri uri, Map<String, String>? headers, bool shouldResolveDecoderByExtension
   ) async {
     try {
       final operation = GetSizeOperation(
@@ -76,13 +77,12 @@ class FastImage {
     }
   }
 
-  SizeDecoder _decoderForExtension(String extension) {
+  SizeDecoder? _decoderForExtension(String? extension) {
     if (extension == null)
       return null;
-    return _decoders.firstWhere(
+    return _decoders.firstWhereOrNull(
             ($0) => $0.supportsFileExtension(extension)
-                && $0.constantDataLength != null,
-        orElse: () => null
+                && $0.constantDataLength != null
     );
   }
 }

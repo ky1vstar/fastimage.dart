@@ -10,17 +10,17 @@ import 'package:fastimage/src/utils/extensions.dart';
 ///
 /// http://www.fileformat.info/format/tiff/egff.htm
 class Exif {
-  final ImageOrientation orientation;
-  final int width;
-  final int height;
+  final ImageOrientation? orientation;
+  final int? width;
+  final int? height;
 
   const Exif._(this.orientation, this.width, this.height);
 
   factory Exif(Uint8List data) {
     final blob = ByteData.sublistView(data);
-    ImageOrientation orientation;
-    int width;
-    int height;
+    ImageOrientation? orientation;
+    int? width;
+    int? height;
 
     // Little endian defined as "II", big endian defined as "MM"
     final endian = data.hasPrefix([0x49, 0x49]) ? Endian.little : Endian.big;

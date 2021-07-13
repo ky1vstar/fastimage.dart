@@ -12,7 +12,7 @@ Future<R> computeStream<S, Q, R>(
   final ReceivePort resultPort = ReceivePort();
   final ReceivePort exitPort = ReceivePort();
   final ReceivePort errorPort = ReceivePort();
-  StreamSubscription<S> subscription;
+  late StreamSubscription<S> subscription;
 
   final isolate = await Isolate.spawn<_IsolateConfiguration<S, Q, FutureOr<R>>>(
     _spawn,
@@ -60,7 +60,7 @@ Future<R> computeStream<S, Q, R>(
           }
       );
     } else if (resultData is StreamEvent) {
-      result.complete(resultData.value as R);
+      result.complete(resultData.value as R?);
     } else if (resultData is StreamError) {
       result.completeError(resultData.error, resultData.stackTrace);
     }
@@ -90,7 +90,7 @@ class _IsolateConfiguration<S, Q, R> {
       StreamTransformer.fromHandlers(
           handleData: (data, sink) {
             if (data is StreamEvent) {
-              sink.add(data.value);
+              sink.add(data.value as S);
             } else if (data is StreamError) {
               sink.addError(data.error, data.stackTrace);
             } else if (data is StreamDone) {
@@ -102,13 +102,13 @@ class _IsolateConfiguration<S, Q, R> {
 }
 
 Future<void> _spawn<S, Q, R>(
-    _IsolateConfiguration<S, Q, FutureOr<R>> configuration
+    _IsolateConfiguration<S?, Q, FutureOr<R>> configuration
 ) async {
   ReceivePort inputPort = ReceivePort();
   try {
     configuration.resultPort.send(inputPort.sendPort);
     final stream = configuration.transform(inputPort);
-    final applicationResult = await configuration.apply(stream);
+    final FutureOr<R> applicationResult = await configuration.apply(stream);
     final result = await applicationResult;
     configuration.resultPort.send(StreamEvent(result));
   } catch (e, stackTrace) {

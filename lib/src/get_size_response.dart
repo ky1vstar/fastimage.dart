@@ -7,12 +7,9 @@ class GetSizeResponse {
   final ImageFormat format;
 
   GetSizeResponse(int width, int height, this.format)
-      : assert(format != null),
-        size = ImageSize(width, height);
+      : size = ImageSize(width, height);
 
-  GetSizeResponse.size(this.size, this.format)
-      : assert(size != null),
-        assert(format != null);
+  GetSizeResponse.size(this.size, this.format);
 
   @override
   String toString() =>

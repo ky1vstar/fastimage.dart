@@ -4,10 +4,7 @@ class ImageSize {
   final int width;
   final int height;
 
-  const ImageSize(this.width, this.height)
-      :
-        assert(width != null),
-        assert(height != null);
+  const ImageSize(this.width, this.height);
 
   @override
   String toString() =>

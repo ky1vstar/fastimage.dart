@@ -13,7 +13,7 @@ import 'package:fastimage/src/utils/extensions.dart';
 class TiffSizeDecoder implements SizeDecoder {
   ImageFormat get imageFormat => ImageFormat.tiff;
   int get signatureLength => 11;
-  int get constantDataLength => null;
+  int? get constantDataLength => null;
 
   bool supportsFileExtension(String extension) => false;
 
@@ -27,15 +27,15 @@ class TiffSizeDecoder implements SizeDecoder {
     }
   }
 
-  ImageSize decode(Uint8List data) {
+  ImageSize? decode(Uint8List data) {
     final exif = Exif(data);
     if (exif.width == null || exif.height == null)
       return null;
 
     if (exif.orientation?.isRotated ?? false) {
-      return ImageSize(exif.height, exif.width);
+      return ImageSize(exif.height!, exif.width!);
     } else {
-      return ImageSize(exif.width, exif.height);
+      return ImageSize(exif.width!, exif.height!);
     }
   }
 }

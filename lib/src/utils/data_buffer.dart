@@ -5,11 +5,11 @@ class DataBuffer {
   int get length => _length;
 
   static const _initialBufferSize = 1024;
-  int _maxLength;
+  int? _maxLength;
   Uint8List _bytes;
   int _length = 0;
 
-  DataBuffer({int maxLength})
+  DataBuffer({int? maxLength})
       : assert(maxLength == null || maxLength > 0),
         _maxLength = maxLength,
         _bytes = maxLength != null

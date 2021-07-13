@@ -12,7 +12,7 @@ import 'package:fastimage/src/image_size.dart';
 class IcoSizeDecoder implements SizeDecoder {
   ImageFormat get imageFormat => ImageFormat.ico;
   int get signatureLength => _signature.length;
-  int get constantDataLength => null;
+  int? get constantDataLength => null;
 
   static const _signature = [0x00, 0x00, 0x01];
 

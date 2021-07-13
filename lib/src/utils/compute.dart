@@ -25,7 +25,7 @@ const bool kReleaseMode = bool.fromEnvironment(
 
 /// The dart:io implementation of [isolate.compute].
 Future<R> compute<Q, R>(
-    ComputeCallback<Q, R> callback, Q message, { String debugLabel }
+    ComputeCallback<Q, R> callback, Q message, { String? debugLabel }
 ) async {
   debugLabel ??= kReleaseMode ? 'compute' : callback.toString();
   final Flow flow = Flow.begin();
@@ -70,7 +70,7 @@ Future<R> compute<Q, R>(
     if (result.isCompleted) {
       return;
     } else if (resultData is StreamEvent) {
-      result.complete(resultData.value as R);
+      result.complete(resultData.value as R?);
     } else if (resultData is StreamError) {
       result.completeError(resultData.error, resultData.stackTrace);
     }
@@ -109,7 +109,7 @@ Future<void> _spawn<Q, R>(
     final R result = await Timeline.timeSync(
       configuration.debugLabel,
           () async {
-        final FutureOr<R> applicationResult = await configuration.apply();
+        final FutureOr<R> applicationResult = await (configuration.apply() as FutureOr<R>);
         return await applicationResult;
       },
       flow: Flow.step(configuration.flowId),

@@ -18,7 +18,7 @@ class PsdSizeDecoder implements SizeDecoder {
   bool canDecodeData(Uint8List data) =>
       data.hasPrefix(_signature);
 
-  ImageSize decode(Uint8List data) {
+  ImageSize? decode(Uint8List data) {
     if (data.length < constantDataLength)
       return null;
 
